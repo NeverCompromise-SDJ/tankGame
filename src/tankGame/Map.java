@@ -2,12 +2,14 @@ package tankGame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * @author SongDongJie
  * @create 2023/4/16 - 22:54
  */
-class Map extends JPanel {
+class Map extends JPanel implements KeyListener {
     Tank hero = null;
 
     //初始化背景颜色和坦克初始坐标
@@ -20,7 +22,6 @@ class Map extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         drawTank(hero.getX(), hero.getY(), 0, 0, g);
-        drawTank(hero.getX()+100, hero.getY(), 1, 0, g);
     }
 
     /**
@@ -51,5 +52,33 @@ class Map extends JPanel {
                 g.drawLine(x + 25, y, x + 25, y + 45);
             default:
         }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int x=hero.getX();
+        int y=hero.getY();
+        if(e.getKeyCode()==KeyEvent.VK_UP){
+            hero.setY(--y);
+        } else if(e.getKeyCode()==KeyEvent.VK_RIGHT){
+            hero.setX(++x);
+        }
+        else if(e.getKeyCode()==KeyEvent.VK_DOWN){
+            hero.setY(++y);
+        }
+        else if (e.getKeyCode()==KeyEvent.VK_LEFT){
+            hero.setX(--x);
+        }
+        this.repaint();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 }

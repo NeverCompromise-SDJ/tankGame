@@ -15,5 +15,6 @@ public class MapFrame extends JFrame {
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.add(map);
+        this.addKeyListener(map);
     }
 }
