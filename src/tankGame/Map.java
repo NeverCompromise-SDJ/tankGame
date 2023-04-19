@@ -11,7 +11,7 @@ import java.awt.event.KeyListener;
  */
 class Map extends JPanel implements KeyListener {
     Tank hero = null;
-    private int direction=0;
+    private int direction = 0;
 
     //初始化背景颜色和坦克初始坐标
     Map() {
@@ -44,27 +44,28 @@ class Map extends JPanel implements KeyListener {
             default:
 
         }
-        //根据坦克朝向，以坦克为北朝向的(0,0)进行顺时针旋转，以确定坦克坐标。
+        //根据坦克朝向，以坦克为左上角的坐标始终为(0,0)的方法，确定坦克坐标。
         switch (direction) {
             case 0:
-                g.fill3DRect(x, y, 10, 70, false);
-                g.fill3DRect(x + 10, y + 10, 30, 50, false);
-                g.fill3DRect(x + 40, y, 10, 70, false);
-                g.fillOval(x + 10, y + 20, 30, 30);
-                g.drawLine(x + 25, y, x + 25, y + 45);
+                g.fill3DRect(x, y, 10, 70, false);//左边轮子
+                g.fill3DRect(x + 10, y + 10, 30, 50, false);//身子
+                g.fill3DRect(x + 40, y, 10, 70, false);//右边轮子
+                g.fillOval(x + 10, y + 20, 30, 30);//炮台
+                g.drawLine(x + 25, y, x + 25, y + 45);//炮管
                 break;
             case 1:
-                g.fill3DRect(x, y, 10, 70, false);
-                g.fill3DRect(x + 10, y + 10, 30, 50, false);
-                g.fill3DRect(x + 40, y, 10, 70, false);
-                g.fillOval(x + 10, y + 20, 30, 30);
-                g.drawLine(x + 25, y, x + 25, y + 45);
+                g.fill3DRect(x, y, 70, 10, false);
+                g.fill3DRect(x + 10, y + 10, 50, 30, false);
+                g.fill3DRect(x, y + 40, 70, 10, false);
+                g.fillOval(x + 20, y + 10, 30, 30);
+                g.drawLine(x + 35, y + 25, x + 70, y + 25);
+                break;
             case 2:
                 g.fill3DRect(x, y, 10, 70, false);
                 g.fill3DRect(x + 10, y + 10, 30, 50, false);
                 g.fill3DRect(x + 40, y, 10, 70, false);
                 g.fillOval(x + 10, y + 20, 30, 30);
-                g.drawLine(x + 25, y + 45, x + 25, y + 80);
+                g.drawLine(x + 25, y + 45, x + 25, y + 70);
                 break;
             default:
         }
@@ -80,16 +81,16 @@ class Map extends JPanel implements KeyListener {
         int x = hero.getX();
         int y = hero.getY();
         if (e.getKeyCode() == KeyEvent.VK_UP) {
-            this.direction=0;
+            this.direction = 0;
             hero.setY(--y);
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            this.direction=1;
+            this.direction = 1;
             hero.setX(++x);
         } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            this.direction=2;
+            this.direction = 2;
             hero.setY(++y);
         } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            this.direction=3;
+            this.direction = 3;
             hero.setX(--x);
         }
         this.repaint();
