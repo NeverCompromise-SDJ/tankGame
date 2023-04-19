@@ -1,11 +1,9 @@
 package tankGame;
 
-import javax.lang.model.element.VariableElement;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -14,7 +12,7 @@ import java.util.Vector;
  */
 class Map extends JPanel implements KeyListener {
     private Tank hero = null;
-    private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
+    final private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
     private int enemyTankNumber = 3;
 
     //初始化背景颜色、坦克方位、坦克速度
@@ -38,9 +36,7 @@ class Map extends JPanel implements KeyListener {
         //绘制友军坦克
         drawTank(hero.getX(), hero.getY(), 0, hero.getDirection(), g);
         //绘制敌方坦克
-        Iterator<EnemyTank> enemyTankIterator = enemyTankList.iterator();
-        while (enemyTankIterator.hasNext()) {
-            Tank enemyTank = enemyTankIterator.next();
+        for (Tank enemyTank : enemyTankList) {
             drawTank(enemyTank.getX(), enemyTank.getY(), 1, enemyTank.getDirection(), g);
         }
     }
