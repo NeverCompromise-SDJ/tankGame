@@ -1,31 +1,53 @@
 package tankGame;
 
+import javax.lang.model.element.VariableElement;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  * @author SongDongJie
  * @create 2023/4/16 - 22:54
  */
 class Map extends JPanel implements KeyListener {
-    Tank hero = null;
-    private int direction = 0;
+    private Tank hero = null;
+    private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
+    private int enemyTankNumber = 3;
 
-    //初始化背景颜色和坦克初始坐标
+    //初始化背景颜色、坦克方位、坦克速度
     Map() {
         this.setBackground(Color.BLACK);
-        hero = new Hero(100, 100);
+        //添加友方坦克
+        hero = new Hero(300, 300);
+        hero.setSpeed(5);
+        //添加敌方坦克
+        for (int i = 0; i < enemyTankNumber; i++) {
+            EnemyTank enemyTank = new EnemyTank((i + 1) * 100, 0);
+            //使得敌方坦克开始时，炮筒向下
+            enemyTank.setDirection(2);
+            enemyTankList.add(enemyTank);
+        }
     }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        drawTank(hero.getX(), hero.getY(), 0, this.direction, g);
+        //绘制友军坦克
+        drawTank(hero.getX(), hero.getY(), 0, hero.getDirection(), g);
+        //绘制敌方坦克
+        Iterator<EnemyTank> enemyTankIterator = enemyTankList.iterator();
+        while (enemyTankIterator.hasNext()) {
+            Tank enemyTank = enemyTankIterator.next();
+            drawTank(enemyTank.getX(), enemyTank.getY(), 1, enemyTank.getDirection(), g);
+        }
     }
 
     /**
+     * 绘制坦克
+     *
      * @param x         坦克左上角x坐标
      * @param y         坦克左上角y坐标
      * @param type      坦克的类型，0为友军，1为敌人
@@ -67,6 +89,13 @@ class Map extends JPanel implements KeyListener {
                 g.fillOval(x + 10, y + 20, 30, 30);
                 g.drawLine(x + 25, y + 45, x + 25, y + 70);
                 break;
+            case 3:
+                g.fill3DRect(x, y, 70, 10, false);
+                g.fill3DRect(x + 10, y + 10, 50, 30, false);
+                g.fill3DRect(x, y + 40, 70, 10, false);
+                g.fillOval(x + 20, y + 10, 30, 30);
+                g.drawLine(x + 35, y + 25, x, y + 25);
+                break;
             default:
         }
     }
@@ -78,21 +107,16 @@ class Map extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        int x = hero.getX();
-        int y = hero.getY();
-        if (e.getKeyCode() == KeyEvent.VK_UP) {
-            this.direction = 0;
-            hero.setY(--y);
-        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            this.direction = 1;
-            hero.setX(++x);
-        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            this.direction = 2;
-            hero.setY(++y);
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            this.direction = 3;
-            hero.setX(--x);
+        if (e.getKeyCode() == KeyEvent.VK_UP) {//朝北走
+            hero.setDirection(0);
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {//朝东走
+            hero.setDirection(1);
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {//朝南走
+            hero.setDirection(2);
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {//朝西走
+            hero.setDirection(3);
         }
+        hero.move();
         this.repaint();
     }
 
