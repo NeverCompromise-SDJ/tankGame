@@ -9,14 +9,18 @@ import java.util.Vector;
 /**
  * @author SongDongJie
  * @create 2023/4/16 - 22:54
+ * 坦克地图的中间容器，游戏展示的地方
  */
 class Map extends JPanel implements KeyListener {
-    private Tank hero = null;
+    //友军坦克
+    private Hero hero = null;
+    //敌军坦克
     final private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
     private int enemyTankNumber = 3;
 
     //初始化背景颜色、坦克方位、坦克速度
     Map() {
+        //将背景设为黑色
         this.setBackground(Color.BLACK);
         //添加友方坦克
         hero = new Hero(300, 300);
@@ -30,6 +34,7 @@ class Map extends JPanel implements KeyListener {
         }
     }
 
+    //绘制主方法
     @Override
     public void paint(Graphics g) {
         super.paint(g);
@@ -103,16 +108,25 @@ class Map extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        //根据方向键改变坦克的方向,并让坦克动起来
         if (e.getKeyCode() == KeyEvent.VK_UP) {//朝北走
             hero.setDirection(0);
+            hero.move();
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {//朝东走
             hero.setDirection(1);
+            hero.move();
         } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {//朝南走
             hero.setDirection(2);
+            hero.move();
         } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {//朝西走
             hero.setDirection(3);
+            hero.move();
         }
-        hero.move();
+        //按下J键时，坦克发射子弹
+        if (e.getKeyCode() == KeyEvent.VK_J) {
+            hero.shotBullet();
+        }
+        //改变了坦克的位置和方向、射出子弹后，需要重新绘制地图
         this.repaint();
     }
 

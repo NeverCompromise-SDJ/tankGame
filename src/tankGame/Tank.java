@@ -3,6 +3,7 @@ package tankGame;
 /**
  * @author SongDongJie
  * @create 2023/4/16 - 22:55
+ * 坦克类
  */
 class Tank {
     private int x;//坦克的x坐标
@@ -56,15 +57,21 @@ class Tank {
         isEnemy = enemy;
     }
 
+    //根据当前的方向来移动
     public void move() {
-        if (direction == 0) {
-            y -= speed;
-        } else if (direction == 1) {
-            x += speed;
-        } else if (direction == 2) {
-            y += speed;
-        } else if (direction == 3) {
-            x -= speed;
+        switch (direction) {
+            case 0:
+                y -= speed;
+                break;
+            case 1:
+                x += speed;
+                break;
+            case 2:
+                y += speed;
+                break;
+            case 3:
+                x -= speed;
+                break;
         }
     }
 
