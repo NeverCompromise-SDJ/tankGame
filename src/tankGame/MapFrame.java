@@ -13,6 +13,8 @@ public class MapFrame extends JFrame {
     public MapFrame() {
         //创建一个坦克地图的非顶级容器
         map = new Map();
+        //启动map线程
+        new Thread(map).start();
         this.setSize(1200, 700);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

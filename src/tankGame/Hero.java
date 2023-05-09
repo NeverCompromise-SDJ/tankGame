@@ -8,10 +8,14 @@ import com.sun.javafx.scene.traversal.Direction;
  * 友方坦克类
  */
 class Hero extends Tank {
-    Bullet bullet = null;
+    private Bullet bullet = null;
 
     public Hero(int x, int y) {
         super(x, y);
+    }
+
+    public Bullet getBullet() {
+        return bullet;
     }
 
     /*

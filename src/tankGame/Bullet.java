@@ -5,6 +5,7 @@ package tankGame;
  * @create 2023/5/9 - 0:55
  * 子弹类
  */
+//为了不断改变子弹的坐标，以及子弹的生命周期，因此需要将子弹做成线程
 public class Bullet implements Runnable {
     private int x;//子弹的x坐标
     private int y;//子弹的y坐标
@@ -16,6 +17,18 @@ public class Bullet implements Runnable {
         this.x = x;
         this.y = y;
         this.direction = direction;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public boolean isLive() {
+        return isLive;
     }
 
     public void bulletMove() {

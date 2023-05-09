@@ -1,38 +1,37 @@
 class Test {
-    public static void main(String[] args) {
-        TicketSale ticketSale = new TicketSale();
-        Thread ticketSale1 = new Thread(ticketSale);
-        Thread ticketSale2 = new Thread(ticketSale);
-        ticketSale1.start();
-        ticketSale2.start();
+    public static void main(String[] args) throws InterruptedException {
+        Account account = new Account(1000000);
+        Thread thread1 = new Thread(account);
+        Thread thread2 = new Thread(account);
+        thread1.start();
+        thread2.start();
     }
 }
 
-class TicketSale implements Runnable {
-    private Object lock1 = new Object();
-    private Object lock2 = new Object();
+class Account implements Runnable {
+    private double money;
+
+    public Account(double money) {
+        this.money = money;
+    }
+
+    public void takeMoney() {
+        while (true) {
+            synchronized (this) {
+                if ((money - 1000) < 0) {
+                    System.out.println("账户余额不足");
+                    break;
+                }
+                money -= 1000;
+                System.out.println(Thread.currentThread().getName() + "取了1000元，还剩：" + money + "元");
+            }
+        }
+    }
 
     @Override
     public void run() {
-        if (Thread.currentThread().getName().equals("Thread-0")) {
-            synchronized (lock1) {
-                System.out.println(Thread.currentThread().getName() + "拿到了lock1对象的锁");
-                try {
-                    Thread.currentThread().wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                synchronized (lock2) {
-                    System.out.println(Thread.currentThread().getName() + "拿到了lock2对象的锁");
-                }
-            }
-        } else {
-            synchronized (lock2) {
-                System.out.println(Thread.currentThread().getName() + "拿到了lock2对象的锁");
-                synchronized (lock1) {
-                    System.out.println(Thread.currentThread().getName() + "拿到了lock1对象的锁");
-                }
-            }
-        }
+        takeMoney();
+        System.out.println(Thread.currentThread().getName() + "退出");
+        System.out.println(money);
     }
 }
