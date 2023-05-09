@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -45,14 +46,19 @@ class Map extends JPanel implements KeyListener, Runnable {
         for (Tank enemyTank : enemyTankList) {
             drawTank(enemyTank.getX(), enemyTank.getY(), 1, enemyTank.getDirection(), g);
         }
-        //绘制友军发射的子弹
-        for (Object o :) {
-            
+        //绘制友军发射的所有子弹
+        Iterator<Bullet> it = hero.getBulletList().iterator();
+        while (it.hasNext()) {
+            Bullet bullet = it.next();
+            //绘制单颗子弹
+            drawBullet(bullet, g);
+            //当子弹不存在时，需要将子弹从子弹集合中移除，来保证发射了很多子弹后不会降低遍历效率
+            if (!bullet.isLive()) {
+                it.remove();
+            }
         }
+//        System.out.println(hero.getBulletList().size());  测试子弹消失后，子弹集合的长度是否减少了
 
-        if (hero.getBullet() != null && hero.getBullet().isLive()) {
-            drawBullet(g);
-        }
     }
 
     /**
@@ -110,8 +116,8 @@ class Map extends JPanel implements KeyListener, Runnable {
         }
     }
 
-    public void drawBullet(Graphics g) {
-        g.draw3DRect(hero.getBullet().getX(), hero.getBullet().getY(), 1, 1, false);
+    public void drawBullet(Bullet bullet, Graphics g) {
+        g.draw3DRect(bullet.getX(), bullet.getY(), 1, 1, false);
     }
 
     @Override

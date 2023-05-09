@@ -66,7 +66,7 @@ public class Bullet implements Runnable {
                 isLive = false;
                 break;
             }
-            System.out.println(x + "  " + y);
+            System.out.println(x + "  " + y);  //测试子弹的坐标
         }
         System.out.println("子弹线程结束");
     }

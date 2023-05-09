@@ -15,11 +15,11 @@ class Hero extends Tank {
         super(x, y);
     }
 
-    public Vector<Bullet> bulletList() {
+    public Vector<Bullet> getBulletList() {
         return bulletList;
     }
 
-    /*
+     /*
         坦克发射子弹
      */
     public void shotBullet() {
