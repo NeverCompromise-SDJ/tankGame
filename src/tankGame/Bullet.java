@@ -51,6 +51,7 @@ public class Bullet implements Runnable {
     //子弹被发射出去
     @Override
     public void run() {
+        System.out.println("子弹线程开始");
         while (true) {
             try {
                 //目的是不让子弹移动过快
@@ -67,6 +68,7 @@ public class Bullet implements Runnable {
             }
             System.out.println(x + "  " + y);
         }
+        System.out.println("子弹线程结束");
     }
 //TEST
 //    public static void main(String[] args) {

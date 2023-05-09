@@ -11,7 +11,7 @@ import java.util.Vector;
  * @create 2023/4/16 - 22:54
  * 坦克地图的中间容器，游戏展示的地方
  */
-//为了让Map不停地重绘子弹，展示子弹的最新位置，需要将Map做成线程
+//为了让Map不停地重绘子弹，需要将Map做成线程
 class Map extends JPanel implements KeyListener, Runnable {
     //友军坦克
     private Hero hero = null;
@@ -46,6 +46,10 @@ class Map extends JPanel implements KeyListener, Runnable {
             drawTank(enemyTank.getX(), enemyTank.getY(), 1, enemyTank.getDirection(), g);
         }
         //绘制友军发射的子弹
+        for (Object o :) {
+            
+        }
+
         if (hero.getBullet() != null && hero.getBullet().isLive()) {
             drawBullet(g);
         }
