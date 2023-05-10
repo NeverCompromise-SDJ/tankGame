@@ -33,6 +33,7 @@ class Map extends JPanel implements KeyListener, Runnable {
             //使得敌方坦克开始时，炮筒向下
             enemyTank.setDirection(2);
             enemyTankList.add(enemyTank);
+            enemyTank.shotBullet();
         }
     }
 
@@ -42,21 +43,17 @@ class Map extends JPanel implements KeyListener, Runnable {
         super.paint(g);
         //绘制友军坦克
         drawTank(hero.getX(), hero.getY(), 0, hero.getDirection(), g);
-        //绘制敌方坦克
-        for (Tank enemyTank : enemyTankList) {
+        //绘制友军坦克所有子弹
+        drawAllBullet(hero, g);
+        //绘制敌方坦克和敌方坦克所有子弹
+        for (EnemyTank enemyTank : enemyTankList) {
+            //绘制坦克
             drawTank(enemyTank.getX(), enemyTank.getY(), 1, enemyTank.getDirection(), g);
+            //绘制子弹
+            drawAllBullet(enemyTank, g);
         }
-        //绘制友军发射的所有子弹
-        Iterator<Bullet> it = hero.getBulletList().iterator();
-        while (it.hasNext()) {
-            Bullet bullet = it.next();
-            //绘制单颗子弹
-            drawBullet(bullet, g);
-            //当子弹不存在时，需要将子弹从子弹集合中移除，来保证发射了很多子弹后不会降低遍历效率
-            if (!bullet.isLive()) {
-                it.remove();
-            }
-        }
+
+
         System.out.println(hero.getBulletList().size());  //测试子弹消失后，子弹集合的长度是否减少了
 
     }
@@ -116,8 +113,33 @@ class Map extends JPanel implements KeyListener, Runnable {
         }
     }
 
+    /**
+     * 绘制一个坦克的一颗子弹
+     *
+     * @param bullet 子弹对象
+     * @param g      画笔
+     */
     public void drawBullet(Bullet bullet, Graphics g) {
         g.draw3DRect(bullet.getX(), bullet.getY(), 1, 1, false);
+    }
+
+    /**
+     * 绘制一个坦克发射的所有子弹
+     *
+     * @param g 画笔
+     */
+    public void drawAllBullet(Tank tank, Graphics g) {
+        //坦克子弹的集合
+        Iterator<Bullet> heroBullets = tank.getBulletList().iterator();
+        while (heroBullets.hasNext()) {
+            Bullet bullet = heroBullets.next();
+            //绘制单颗子弹
+            drawBullet(bullet, g);
+            //当子弹不存在时，需要将子弹从子弹集合中移除，来保证发射了很多子弹后不会降低遍历效率
+            if (!bullet.isLive()) {
+                heroBullets.remove();
+            }
+        }
     }
 
     @Override
