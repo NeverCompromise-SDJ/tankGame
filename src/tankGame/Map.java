@@ -57,7 +57,7 @@ class Map extends JPanel implements KeyListener, Runnable {
                 it.remove();
             }
         }
-//        System.out.println(hero.getBulletList().size());  测试子弹消失后，子弹集合的长度是否减少了
+        System.out.println(hero.getBulletList().size());  //测试子弹消失后，子弹集合的长度是否减少了
 
     }
 
