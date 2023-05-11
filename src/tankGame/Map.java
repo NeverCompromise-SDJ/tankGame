@@ -142,6 +142,50 @@ class Map extends JPanel implements KeyListener, Runnable {
         }
     }
 
+    /**
+     * 判断友方子弹是否击中敌方坦克，如果击中了则销毁坦克和子弹。
+     *
+     * @param hero          友方坦克
+     * @param enemyTankList 敌方坦克
+     */
+    public void hitTank(Hero hero, Vector<EnemyTank> enemyTankList) {
+        //优化，如果友方坦克在地图上没有子弹或者地图上不存在敌方坦克了，即直接返回。无需再判断友方子弹是否击中敌方坦克
+        if (enemyTankList.size() <= 0 && hero.getBulletList().size() <= 0) {
+            return;
+        }
+        /*当友方坦克在地图上存在子弹，且敌方坦克在地图上也存在时。遍历友方坦克的子弹，再针对每颗子弹遍历敌方所有坦克，如果某颗子弹
+        和敌方坦克的矩形范围重叠，则说明子弹集中了敌方坦克。将对应的子弹和敌方坦克分别从各自的集合中去除，达到销毁的目的。*/
+        Iterator<Bullet> bulletIterator = hero.getBulletList().iterator();
+        //遍历每颗子弹
+        while (bulletIterator.hasNext()) {
+            Bullet bullet = bulletIterator.next();
+            Iterator<EnemyTank> enemyTankIterator = enemyTankList.iterator();
+            //针对每颗子弹遍历敌方所有坦克
+            while (enemyTankIterator.hasNext()) {
+                EnemyTank enemyTank = enemyTankIterator.next();
+                //判断子弹是否击中敌方坦克
+                switch (enemyTank.getDirection()) {
+                    //当坦克为南北朝向时
+                    case 0:
+                    case 2:
+                        if ((bullet.getX() > enemyTank.getX()) && (bullet.getX() < enemyTank.getX() + 50) && (bullet.getY() > enemyTank.getY()) && (bullet.getY() < enemyTank.getY() + 70)) {
+                            bulletIterator.remove();
+                            enemyTankIterator.remove();
+                        }
+                        break;
+                    //当坦克为东西朝向时
+                    case 1:
+                    case 3:
+                        if ((bullet.getX() > enemyTank.getX()) && (bullet.getX() < enemyTank.getX() + 70) && (bullet.getY() > enemyTank.getY()) && (bullet.getY() < enemyTank.getY() + 50)) {
+                            bulletIterator.remove();
+                            enemyTankIterator.remove();
+                        }
+                }
+            }
+        }
+
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -184,6 +228,8 @@ class Map extends JPanel implements KeyListener, Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            //判断友方子弹是否击中敌方坦克，因为要实时判断所以需要放在run方法的while循环中不停执行
+            hitTank(hero, enemyTankList);
             this.repaint();
         }
     }
