@@ -31,6 +31,10 @@ public class Bullet implements Runnable {
         return isLive;
     }
 
+    public void setLive(boolean live) {
+        isLive = live;
+    }
+
     public void bulletMove() {
         switch (direction) {
             case 0:
@@ -52,7 +56,8 @@ public class Bullet implements Runnable {
     @Override
     public void run() {
         System.out.println("子弹线程开始");
-        while (true) {
+        //当子弹还存在地图上时，线程继续执行。当子弹不在了，线程就结束了
+        while (isLive) {
             try {
                 //目的是不让子弹移动过快
                 Thread.sleep(50);
@@ -61,9 +66,11 @@ public class Bullet implements Runnable {
             }
             //每50毫秒，子弹移动一次
             bulletMove();
-            //如果子弹到达边界，则消失，状态变为不可移动
+            //如果子弹到达边界，则消失
             if (!(x >= 0 && x <= 1200 && y >= 0 && y <= 700)) {
+                //将子弹状态记为不存在，以达到从子弹集合中移除的目的
                 isLive = false;
+                //退出子弹线程
                 break;
             }
             System.out.println(x + "  " + y);  //测试子弹的坐标

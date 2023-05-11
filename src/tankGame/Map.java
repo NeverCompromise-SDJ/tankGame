@@ -10,9 +10,15 @@ import java.util.Vector;
 /**
  * @author SongDongJie
  * @create 2023/4/16 - 22:54
- * 坦克地图的中间容器，游戏展示的地方
+ * Map类说明：坦克地图的中间容器，游戏展示的地方
  */
 //为了让Map不停地重绘子弹，需要将Map做成线程
+//子弹绘制机制：通过遍历所有坦克各自的子弹集合来绘制子弹。
+//子弹线程生命周期机制：子弹不存在时(isLive=false)，Bullet的run方法就结束了。
+//子弹添加进集合，并启动线程的时机：友军坦克：按下J键时（Map的keyPressed方法->Tank的shotBullet方法）  敌方坦克：直接添加（Map的构造器）
+//子弹从集合中移出的时机：1.子弹与坦克碰撞时（Map的hitTank方法）。2.绘制单个坦克所有子弹的时候（Map的drawAllBullet方法），这里是将到达边界的子弹移除子弹集合。
+//子弹束线程的时机： 1.子弹与坦克碰撞时（Map的hitTank方法）。2.子弹到达边界时（Bullet的run方法）
+
 class Map extends JPanel implements KeyListener, Runnable {
     //友军坦克
     private Hero hero = null;
@@ -33,7 +39,7 @@ class Map extends JPanel implements KeyListener, Runnable {
             //使得敌方坦克开始时，炮筒向下
             enemyTank.setDirection(2);
             enemyTankList.add(enemyTank);
-            enemyTank.shotBullet();
+//            enemyTank.shotBullet();
         }
     }
 
@@ -58,8 +64,9 @@ class Map extends JPanel implements KeyListener, Runnable {
 
     }
 
+
     /**
-     * 绘制坦克
+     * 绘制单个坦克
      *
      * @param x         坦克左上角x坐标
      * @param y         坦克左上角y坐标
@@ -124,7 +131,7 @@ class Map extends JPanel implements KeyListener, Runnable {
     }
 
     /**
-     * 绘制一个坦克发射的所有子弹
+     * 通过遍历一个坦克的子弹集合，来绘制一个坦克发射的所有子弹。同时将不存在的子弹（isLive=false）移出子弹集合中，提高遍历的效率
      *
      * @param g 画笔
      */
@@ -133,12 +140,12 @@ class Map extends JPanel implements KeyListener, Runnable {
         Iterator<Bullet> heroBullets = tank.getBulletList().iterator();
         while (heroBullets.hasNext()) {
             Bullet bullet = heroBullets.next();
-            //绘制单颗子弹
-            drawBullet(bullet, g);
-            //当子弹不存在时，需要将子弹从子弹集合中移除，来保证发射了很多子弹后不会降低遍历效率
+            //当子弹超出界外而不存在时，需要将子弹从子弹集合中移除，来保证发射了很多子弹后不会降低遍历效率
             if (!bullet.isLive()) {
                 heroBullets.remove();
             }
+            //绘制单颗子弹
+            drawBullet(bullet, g);
         }
     }
 
@@ -150,11 +157,11 @@ class Map extends JPanel implements KeyListener, Runnable {
      */
     public void hitTank(Hero hero, Vector<EnemyTank> enemyTankList) {
         //优化，如果友方坦克在地图上没有子弹或者地图上不存在敌方坦克了，即直接返回。无需再判断友方子弹是否击中敌方坦克
-        if (enemyTankList.size() <= 0 && hero.getBulletList().size() <= 0) {
+        if (enemyTankList.size() <= 0 || hero.getBulletList().size() <= 0) {
             return;
         }
         /*当友方坦克在地图上存在子弹，且敌方坦克在地图上也存在时。遍历友方坦克的子弹，再针对每颗子弹遍历敌方所有坦克，如果某颗子弹
-        和敌方坦克的矩形范围重叠，则说明子弹集中了敌方坦克。将对应的子弹和敌方坦克分别从各自的集合中去除，达到销毁的目的。*/
+        和敌方坦克的矩形范围重叠，则说明子弹集中了敌方坦克。将对应的子弹和敌方坦克销毁。*/
         Iterator<Bullet> bulletIterator = hero.getBulletList().iterator();
         //遍历每颗子弹
         while (bulletIterator.hasNext()) {
@@ -169,7 +176,11 @@ class Map extends JPanel implements KeyListener, Runnable {
                     case 0:
                     case 2:
                         if ((bullet.getX() > enemyTank.getX()) && (bullet.getX() < enemyTank.getX() + 50) && (bullet.getY() > enemyTank.getY()) && (bullet.getY() < enemyTank.getY() + 70)) {
+                            //将击中坦克的子弹的状态改为不存在，使该子弹线程退出
+                            bullet.setLive(false);
+                            //将击中坦克的子弹从集合中移除：1.提高效率 2.将该子弹从地图上移除。
                             bulletIterator.remove();
+                            //将被击中的坦克从集合中移除：1.提高效率 2.将该子弹从地图上移除。
                             enemyTankIterator.remove();
                         }
                         break;
@@ -177,6 +188,7 @@ class Map extends JPanel implements KeyListener, Runnable {
                     case 1:
                     case 3:
                         if ((bullet.getX() > enemyTank.getX()) && (bullet.getX() < enemyTank.getX() + 70) && (bullet.getY() > enemyTank.getY()) && (bullet.getY() < enemyTank.getY() + 50)) {
+                            bullet.setLive(false);
                             bulletIterator.remove();
                             enemyTankIterator.remove();
                         }
@@ -224,12 +236,13 @@ class Map extends JPanel implements KeyListener, Runnable {
     public void run() {//每隔100毫秒重绘地图
         while (true) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             //判断友方子弹是否击中敌方坦克，因为要实时判断所以需要放在run方法的while循环中不停执行
             hitTank(hero, enemyTankList);
+            //需要不断绘制地图，来更新战场情况
             this.repaint();
         }
     }
