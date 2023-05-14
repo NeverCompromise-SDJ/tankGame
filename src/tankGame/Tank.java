@@ -12,7 +12,8 @@ class Tank {
     private int y;//坦克的y坐标
     private int direction;//坦克的朝向，0123分别对应上右下左
     private int speed;//坦克的速度
-    private boolean isEnemy;//是否为敌人
+    private boolean isEnemy;//是否为敌人，true是敌人
+    private boolean isLive = true;//是否还存活，true为存活
     //存放子弹的集合，可以让一个坦克在地图上拥有多颗子弹
     private Vector<Bullet> bulletList = new Vector<>();
 
@@ -61,27 +62,56 @@ class Tank {
         isEnemy = enemy;
     }
 
+    public boolean isLive() {
+        return isLive;
+    }
+
+    public void setLive(boolean live) {
+        isLive = live;
+    }
+
     public Vector<Bullet> getBulletList() {
         return bulletList;
     }
 
+    /**
+     *  首先保存移动前的坦克位置坐标，然后根据坦克方向和速度计算移动后的位置坐标，
+     *  如果移动后的位置超出了地图边界则直接返回，否则更新坦克的位置坐标。
+     */
 
-    //根据当前的方向来移动
     public void move() {
+        int moveBeforeX = x;
+        int moveBeforeY = y;
+        //移动的时候，需要保证坦克的四条边界都不超过地图边界。因此需要将坦克本身的长宽计算进去，坦克南北方向和东西的判断是不同的
         switch (direction) {
             case 0:
-                y -= speed;
+                moveBeforeY -= speed;
+                if (moveBeforeX + 50 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 70 > MapFrame.height || moveBeforeY < 0) {
+                    return;
+                }
                 break;
             case 1:
-                x += speed;
+                moveBeforeX += speed;
+                if (moveBeforeX + 70 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 50 > MapFrame.height || moveBeforeY < 0) {
+                    return;
+                }
                 break;
             case 2:
-                y += speed;
+                moveBeforeY += speed;
+                if (moveBeforeX + 50 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 70 > MapFrame.height || moveBeforeY < 0) {
+                    return;
+                }
                 break;
             case 3:
-                x -= speed;
+                moveBeforeX -= speed;
+                if (moveBeforeX + 70 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 50 > MapFrame.height || moveBeforeY < 0) {
+                    return;
+                }
                 break;
         }
+
+        x = moveBeforeX;
+        y = moveBeforeY;
     }
 
     /*

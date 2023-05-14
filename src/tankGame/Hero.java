@@ -9,5 +9,7 @@ class Hero extends Tank {
 
     public Hero(int x, int y) {
         super(x, y);
+        //初始化hero对象不是敌方坦克
+        setEnemy(false);
     }
 }
