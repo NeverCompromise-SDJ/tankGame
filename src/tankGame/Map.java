@@ -61,9 +61,9 @@ class Map extends JPanel implements KeyListener, Runnable {
     public void paint(Graphics g) {
         super.paint(g);
         //绘制存活的友军坦克
-//        if (hero.isLive()) {
+        if (hero.isLive()) {
             drawTank(hero, g);
-//        }
+        }
         //绘制友军坦克所有子弹
         drawAllBullet(hero, g);
         //绘制敌方坦克和敌方坦克所有子弹
@@ -293,10 +293,10 @@ class Map extends JPanel implements KeyListener, Runnable {
 
     @Override
     public void keyPressed(KeyEvent e) {
-//        //如果友方坦克已经爆炸了，则友方坦克不能再进行操作了
-//        if (!hero.isLive()) {
-//            return;
-//        }
+        //如果友方坦克已经爆炸了，则友方坦克不能再进行操作了
+        if (!hero.isLive()) {
+            return;
+        }
         //根据方向键改变坦克的方向,并让坦克动起来
         if (e.getKeyCode() == KeyEvent.VK_UP) {//朝北走
             hero.setDirection(0);
