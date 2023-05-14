@@ -12,19 +12,23 @@ import java.util.Vector;
  * @create 2023/4/16 - 22:54
  * Map类说明：坦克地图的中间容器，游戏展示的地方
  */
-//为了让Map不停地重绘子弹，需要将Map做成线程
-//子弹绘制机制：通过遍历所有坦克各自的子弹集合来绘制子弹。
-//子弹线程生命周期机制：子弹不存在时(isLive=false)，Bullet的run方法就结束了。
-//子弹添加进集合，并启动线程的时机：友军坦克：按下J键时（Map的keyPressed方法->Tank的shotBullet方法）  敌方坦克：直接添加（Map的构造器）
-//子弹从集合中移出的时机：1.子弹与坦克碰撞时（Map的hitTank方法）。2.绘制单个坦克所有子弹的时候（Map的drawAllBullet方法），这里是将到达边界的子弹移除子弹集合。
-//子弹束线程的时机： 1.子弹与坦克碰撞时（Map的hitTank方法）。2.子弹到达边界时（Bullet的run方法）
-
+/*为了让Map不停地重绘子弹，需要将Map做成线程
+子弹绘制机制：通过遍历所有坦克各自的子弹集合来绘制子弹。
+子弹线程生命周期机制：子弹不存在时(isLive=false)，Bullet的run方法就结束了。
+子弹添加进集合，并启动线程的时机：友军坦克：按下J键时（Map的keyPressed方法->Tank的shotBullet方法）  敌方坦克：直接添加（Map的构造器）
+子弹从集合中移出的时机：1.子弹与坦克碰撞时（Map的hitTank方法）。2.绘制单个坦克所有子弹的时候（Map的drawAllBullet方法），这里是将到达边界的子弹移除子弹集合。
+子弹束线程的时机： 1.子弹与坦克碰撞时（Map的hitTank方法）。2.子弹到达边界时（Bullet的run方法）
+坦克爆炸动画机制：坦克被子弹击中后，创建一个Bomb对象并添加到bomb集合中以便进行绘画，同时启动bomb线程来更新爆炸的效果。
+paint方法检查bombList集合中是否有元素，有的话根据bomb对象的生命周期，来进行爆炸效果绘制，爆炸结束后将bomb移出集合以提高遍历效率，并结束bomb线程。
+ */
 class Map extends JPanel implements KeyListener, Runnable {
     //友军坦克
-    private Hero hero = null;
+    private Hero hero;
     //敌军坦克
     final private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
     private int enemyTankNumber = 3;
+    //Bomb对象集合
+    final private Vector<Bomb> bombList = new Vector<>();
 
     //初始化背景颜色、坦克方位、坦克速度
     Map() {
@@ -58,9 +62,11 @@ class Map extends JPanel implements KeyListener, Runnable {
             //绘制子弹
             drawAllBullet(enemyTank, g);
         }
+        //绘制所有坦克的爆炸效果，当bombList中有对象时，说明已经有坦克爆炸了。
+        drawAllExplode(bombList, g);
 
-
-        System.out.println(hero.getBulletList().size());  //测试子弹消失后，子弹集合的长度是否减少了
+//        System.out.println(hero.getBulletList().size());  //测试子弹消失后，子弹集合的长度是否减少了
+//        System.out.println(bombList.size());  //测试爆炸结束后，bomb集合的长度是否减少了
 
     }
 
@@ -150,6 +156,47 @@ class Map extends JPanel implements KeyListener, Runnable {
     }
 
     /**
+     * 绘制所有坦克爆炸效果
+     *
+     * @param bombList 爆炸对象的集合
+     * @param g        画笔
+     */
+    public void drawAllExplode(Vector<Bomb> bombList, Graphics g) {
+        Iterator<Bomb> bombIterator = bombList.iterator();
+        while (bombIterator.hasNext()) {
+            Bomb bomb = bombIterator.next();
+            //绘制单个坦克的爆炸效果
+            drawExplode(bomb, g);
+            //爆炸结束后将bomb对象从bombList中移除。使得之后绘制爆炸效果，遍历bombList时能提高效率
+            if (bomb.getLifePeriod() > 3) {
+                bombIterator.remove();
+            }
+        }
+
+    }
+
+    /**
+     * 根据bomb对象的生命周期，绘制单个坦克爆炸效果
+     *
+     * @param bomb bomb对象
+     * @param g    画笔
+     */
+    public void drawExplode(Bomb bomb, Graphics g) {
+        Image imageTankExplode1 = Toolkit.getDefaultToolkit().getImage("./resource/坦克爆炸图/bomb_1.gif");
+        Image imageTankExplode2 = Toolkit.getDefaultToolkit().getImage("./resource/坦克爆炸图/bomb_2.gif");
+        Image imageTankExplode3 = Toolkit.getDefaultToolkit().getImage("./resource/坦克爆炸图/bomb_3.gif");
+        //当bomb对象生命周期为1、2、3时，分别处于爆炸的前中后期，爆炸的范围也从大到小
+        if (bomb.getLifePeriod() == 1) {
+            g.drawImage(imageTankExplode1, bomb.getX(), bomb.getY(), 60, 60, this);
+        } else if (bomb.getLifePeriod() == 2) {
+            g.drawImage(imageTankExplode2, bomb.getX(), bomb.getY(), 60, 60, this);
+        } else if (bomb.getLifePeriod() == 3) {
+            g.drawImage(imageTankExplode3, bomb.getX(), bomb.getY(), 60, 60, this);
+        }
+
+    }
+
+    /**
      * 判断友方子弹是否击中敌方坦克，如果击中了则销毁坦克和子弹。
      *
      * @param hero          友方坦克
@@ -182,6 +229,10 @@ class Map extends JPanel implements KeyListener, Runnable {
                             bulletIterator.remove();
                             //将被击中的坦克从集合中移除：1.提高效率 2.将该子弹从地图上移除。
                             enemyTankIterator.remove();
+                            //被子弹击中后，创建一个Bomb对象并添加到bomb集合中以便进行绘画，同时启动bomb线程来更新爆炸的效果
+                            Bomb bomb = new Bomb(enemyTank.getX(), enemyTank.getY());
+                            bombList.add(bomb);
+                            new Thread(bomb).start();
                         }
                         break;
                     //当坦克为东西朝向时
@@ -191,12 +242,17 @@ class Map extends JPanel implements KeyListener, Runnable {
                             bullet.setLive(false);
                             bulletIterator.remove();
                             enemyTankIterator.remove();
+                            Bomb bomb = new Bomb(enemyTank.getX(), enemyTank.getY());
+                            bombList.add(bomb);
+                            new Thread(bomb).start();
                         }
+                        break;
                 }
             }
         }
 
     }
+
 
     @Override
     public void keyTyped(KeyEvent e) {

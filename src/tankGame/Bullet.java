@@ -73,7 +73,7 @@ public class Bullet implements Runnable {
                 //退出子弹线程
                 break;
             }
-            System.out.println(x + "  " + y);  //测试子弹的坐标
+//            System.out.println(x + "  " + y);  //测试子弹的坐标
         }
         System.out.println("子弹线程结束");
     }
