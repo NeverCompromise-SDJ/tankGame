@@ -67,7 +67,7 @@ public class Bullet implements Runnable {
             //每50毫秒，子弹移动一次
             bulletMove();
             //如果子弹到达边界，则消失
-            if (!(x >= 0 && x <= MapFrame.width && y >= 0 && y <= MapFrame.height)) {
+            if (!(x >= 0 && x <= Map.width && y >= 0 && y <= Map.height)) {
                 //将子弹状态记为不存在，以达到从子弹集合中移除的目的
                 isLive = false;
                 //退出子弹线程

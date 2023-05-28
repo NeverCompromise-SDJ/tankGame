@@ -4,8 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.text.BreakIterator;
-import java.time.temporal.TemporalAmount;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -30,14 +28,16 @@ class Map extends JPanel implements KeyListener, Runnable {
     private Hero hero;
     //敌军坦克
     final private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
-    private int enemyTankNumber = 10;
+    private int enemyTankNumber = 5;
     //Bomb对象集合
     final private Vector<Bomb> bombList = new Vector<>();
+    final static int width = 1100;
+    final static int height = 800;
 
     //初始化背景颜色、坦克方位、坦克速度
     Map() {
-        //将背景设为黑色
-        this.setBackground(Color.BLACK);
+        //设置游戏的区域
+        this.setSize(width, height);
         //添加友方坦克
         hero = new Hero(300, 500);
         //修改友方坦克速度
@@ -63,9 +63,13 @@ class Map extends JPanel implements KeyListener, Runnable {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
+        //绘制地图背景颜色
+        g.fillRect(0, 0, width, height);
+        //绘制玩家信息
+        showInfo(g);
         //绘制存活的友军坦克
         if (hero.isLive()) {
-            drawTank(hero, g);
+            drawTank(hero.getX(), hero.getY(), hero.getDirection(), hero.isEnemy(), g);
         }
         //绘制友军坦克所有子弹
         drawAllBullet(hero, g);
@@ -79,7 +83,7 @@ class Map extends JPanel implements KeyListener, Runnable {
                 continue;
             }
             //绘制坦克
-            drawTank(enemyTank, g);
+            drawTank(enemyTank.getX(), enemyTank.getY(), enemyTank.getDirection(), enemyTank.isEnemy(), g);
             //绘制子弹
             drawAllBullet(enemyTank, g);
         }
@@ -92,49 +96,58 @@ class Map extends JPanel implements KeyListener, Runnable {
 
     }
 
+    public void showInfo(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("宋体", Font.BOLD, 21));
+        g.drawString("您累计击毁敌方坦克数", 1130, 30);
+        drawTank(1130, 70, 0, true, g);
+        g.setColor(Color.BLACK);//因为画坦克的时候改变了画笔的颜色，所以绘制黑色字符串的时候，需要再把颜色改回来
+        g.drawString("×", 1200, 111);
+        g.drawString(String.valueOf(Recorder.getDestroyEnemyNum()), 1235, 111);
+    }
 
     /**
-     * 绘制单个坦克
-     *
-     * @param tank 坦克对象
-     * @param g    画笔
+     * @param x         坦克左上角x坐标
+     * @param y         坦克左上角y坐标
+     * @param direction 坦克的朝向
+     * @param type      坦克的类型
      */
-    public void drawTank(Tank tank, Graphics g) {
+    public void drawTank(int x, int y, int direction, boolean type, Graphics g) {
         //根据坦克类型，确定坦克颜色
-        if (tank.isEnemy()) {
+        if (type) {
             g.setColor(Color.YELLOW);
         } else {
             g.setColor(Color.cyan);
         }
         //根据坦克朝向，以坦克为左上角的坐标始终为(0,0)的方法，确定坦克坐标。
-        switch (tank.getDirection()) {
+        switch (direction) {
             case 0:
-                g.fill3DRect(tank.getX(), tank.getY(), 10, 70, false);//左边轮子
-                g.fill3DRect(tank.getX() + 10, tank.getY() + 10, 30, 50, false);//身子
-                g.fill3DRect(tank.getX() + 40, tank.getY(), 10, 70, false);//右边轮子
-                g.fillOval(tank.getX() + 10, tank.getY() + 20, 30, 30);//炮台
-                g.drawLine(tank.getX() + 25, tank.getY(), tank.getX() + 25, tank.getY() + 45);//炮管
+                g.fill3DRect(x, y, 10, 70, false);//左边轮子
+                g.fill3DRect(x + 10, y + 10, 30, 50, false);//身子
+                g.fill3DRect(x + 40, y, 10, 70, false);//右边轮子
+                g.fillOval(x + 10, y + 20, 30, 30);//炮台
+                g.drawLine(x + 25, y, x + 25, y + 45);//炮管
                 break;
             case 1:
-                g.fill3DRect(tank.getX(), tank.getY(), 70, 10, false);
-                g.fill3DRect(tank.getX() + 10, tank.getY() + 10, 50, 30, false);
-                g.fill3DRect(tank.getX(), tank.getY() + 40, 70, 10, false);
-                g.fillOval(tank.getX() + 20, tank.getY() + 10, 30, 30);
-                g.drawLine(tank.getX() + 35, tank.getY() + 25, tank.getX() + 70, tank.getY() + 25);
+                g.fill3DRect(x, y, 70, 10, false);
+                g.fill3DRect(x + 10, y + 10, 50, 30, false);
+                g.fill3DRect(x, y + 40, 70, 10, false);
+                g.fillOval(x + 20, y + 10, 30, 30);
+                g.drawLine(x + 35, y + 25, x + 70, y + 25);
                 break;
             case 2:
-                g.fill3DRect(tank.getX(), tank.getY(), 10, 70, false);
-                g.fill3DRect(tank.getX() + 10, tank.getY() + 10, 30, 50, false);
-                g.fill3DRect(tank.getX() + 40, tank.getY(), 10, 70, false);
-                g.fillOval(tank.getX() + 10, tank.getY() + 20, 30, 30);
-                g.drawLine(tank.getX() + 25, tank.getY() + 45, tank.getX() + 25, tank.getY() + 70);
+                g.fill3DRect(x, y, 10, 70, false);
+                g.fill3DRect(x + 10, y + 10, 30, 50, false);
+                g.fill3DRect(x + 40, y, 10, 70, false);
+                g.fillOval(x + 10, y + 20, 30, 30);
+                g.drawLine(x + 25, y + 45, x + 25, y + 70);
                 break;
             case 3:
-                g.fill3DRect(tank.getX(), tank.getY(), 70, 10, false);
-                g.fill3DRect(tank.getX() + 10, tank.getY() + 10, 50, 30, false);
-                g.fill3DRect(tank.getX(), tank.getY() + 40, 70, 10, false);
-                g.fillOval(tank.getX() + 20, tank.getY() + 10, 30, 30);
-                g.drawLine(tank.getX() + 35, tank.getY() + 25, tank.getX(), tank.getY() + 25);
+                g.fill3DRect(x, y, 70, 10, false);
+                g.fill3DRect(x + 10, y + 10, 50, 30, false);
+                g.fill3DRect(x, y + 40, 70, 10, false);
+                g.fillOval(x + 20, y + 10, 30, 30);
+                g.drawLine(x + 35, y + 25, x, y + 25);
                 break;
         }
     }
@@ -260,32 +273,40 @@ class Map extends JPanel implements KeyListener, Runnable {
      * @param bullet 遍历的子弹对象
      */
     public void isHit(Tank tank, Bullet bullet) {
+        //标识符，标记坦克是否被子弹击中
+        boolean isHit = false;
         switch (tank.getDirection()) {
             //当坦克为南北朝向时
             case 0:
             case 2:
-                if ((bullet.getX() > tank.getX()) && (bullet.getX() < tank.getX() + 50) && (bullet.getY() > tank.getY()) && (bullet.getY() < tank.getY() + 70)) {
-                    //将击中坦克的子弹的状态改为不存在，使该子弹线程退出，并且从地图上消失
-                    bullet.setLive(false);
-                    //将被击中的坦克的状态设置为死亡，如果是敌方坦克，能够使得坦克线程退出，并且从地图上消失。
-                    tank.setLive(false);
-                    //被子弹击中后，创建一个Bomb对象并添加到bomb集合中以便进行绘画，同时启动bomb线程来更新爆炸的效果
-                    Bomb bomb = new Bomb(tank.getX(), tank.getY());
-                    bombList.add(bomb);
-                    new Thread(bomb).start();
+                if ((bullet.getX() > tank.getX()) && (bullet.getX() < tank.getX() + 50) &&
+                        (bullet.getY() > tank.getY()) && (bullet.getY() < tank.getY() + 70)) {
+                    isHit = true;
                 }
                 break;
             //当坦克为东西朝向时
             case 1:
             case 3:
-                if ((bullet.getX() > tank.getX()) && (bullet.getX() < tank.getX() + 70) && (bullet.getY() > tank.getY()) && (bullet.getY() < tank.getY() + 50)) {
-                    bullet.setLive(false);
-                    tank.setLive(false);
-                    Bomb bomb = new Bomb(tank.getX(), tank.getY());
-                    bombList.add(bomb);
-                    new Thread(bomb).start();
+                if ((bullet.getX() > tank.getX()) && (bullet.getX() < tank.getX() + 70) &&
+                        (bullet.getY() > tank.getY()) && (bullet.getY() < tank.getY() + 50)) {
+                    isHit = true;
                 }
                 break;
+        }
+        //如果坦克被子弹击中
+        if (isHit) {
+            //将击中坦克的子弹的状态改为不存在，使该子弹线程退出，并且从地图上消失
+            bullet.setLive(false);
+            //将被击中的坦克的状态设置为死亡，如果是敌方坦克，能够使得坦克线程退出，并且从地图上消失。
+            tank.setLive(false);
+            //被子弹击中后，创建一个Bomb对象并添加到bomb集合中以便进行绘画，同时启动bomb线程来更新爆炸的效果
+            Bomb bomb = new Bomb(tank.getX(), tank.getY());
+            bombList.add(bomb);
+            new Thread(bomb).start();
+            //如果击中敌方坦克，则在记录中增加消灭敌方坦克的数量
+            if (tank.isEnemy()) {
+                Recorder.destroyEnemyNumAdd();
+            }
         }
     }
 
@@ -341,6 +362,13 @@ class Map extends JPanel implements KeyListener, Runnable {
             hitTank(hero, enemyTankList);
             //需要不断绘制地图，来更新战场情况
             this.repaint();
+            //如果友方坦克被消灭，或者敌方坦克全部被消灭，则游戏结束
+            if (!hero.isLive() || enemyTankList.size() == 0) {
+                break;
+            }
         }
+        //游戏结束后，保存此局游戏的信息
+        Recorder.storeMsg();
+        System.exit(0);
     }
 }

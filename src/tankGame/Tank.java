@@ -86,25 +86,25 @@ class Tank {
         switch (direction) {
             case 0:
                 moveBeforeY -= speed;
-                if (moveBeforeX + 50 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 70 > MapFrame.height || moveBeforeY < 0) {
+                if (moveBeforeX + 50 > Map.width || moveBeforeX < 0 || moveBeforeY + 70 > Map.height || moveBeforeY < 0) {
                     return;
                 }
                 break;
             case 1:
                 moveBeforeX += speed;
-                if (moveBeforeX + 70 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 50 > MapFrame.height || moveBeforeY < 0) {
+                if (moveBeforeX + 70 > Map.width || moveBeforeX < 0 || moveBeforeY + 50 > Map.height || moveBeforeY < 0) {
                     return;
                 }
                 break;
             case 2:
                 moveBeforeY += speed;
-                if (moveBeforeX + 50 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 70 > MapFrame.height || moveBeforeY < 0) {
+                if (moveBeforeX + 50 > Map.width || moveBeforeX < 0 || moveBeforeY + 70 > Map.height || moveBeforeY < 0) {
                     return;
                 }
                 break;
             case 3:
                 moveBeforeX -= speed;
-                if (moveBeforeX + 70 > MapFrame.width || moveBeforeX < 0 || moveBeforeY + 50 > MapFrame.height || moveBeforeY < 0) {
+                if (moveBeforeX + 70 > Map.width || moveBeforeX < 0 || moveBeforeY + 50 > Map.height || moveBeforeY < 0) {
                     return;
                 }
                 break;

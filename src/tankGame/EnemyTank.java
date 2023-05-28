@@ -194,8 +194,8 @@ public class EnemyTank extends Tank implements Runnable {
         //当坦克被摧毁时，坦克线程退出
         while (isLive()) {
             randomMove();
-            //每一个敌方坦克在场上存在的子弹数不能超过五颗
-            if (getBulletList().size() < 5) {
+            //每一个敌方坦克在场上存在的子弹数不能超过三颗
+            if (getBulletList().size() < 3) {
                 shotBullet();
             }
         }
