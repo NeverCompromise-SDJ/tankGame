@@ -6,4 +6,3 @@ class RunGame {
         new MapFrame();
     }
 }
-

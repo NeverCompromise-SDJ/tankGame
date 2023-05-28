@@ -1,15 +1,41 @@
 import java.io.*;
+import java.util.Properties;
 
 class Test {
-    public static void main(String[] args) throws IOException {
-        //使用指定的文件地址，创建一个PrintStream流。
-        PrintStream printStream = new PrintStream("./testFolder/test.txt");
-        //将字符数组的内容写入到文件中
-        printStream.write("sdj".getBytes());
-        //        将标准输出流输出的目标从显示器重定向为文件
-        System.setOut(new PrintStream("./testFolder/test.txt"));
-        //        这句话将输出到PrintStream流指定的文件中，而不是显示器上
-        System.out.println("123");
-        printStream.close();
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        Properties properties = new Properties();
+        properties.load(new FileReader("./testFolder/dog.properties"));
+        String name = properties.getProperty("name");
+        int age = new Integer(properties.getProperty("age"));
+//        int age = Integer.getInteger(properties.getProperty("age"));
+        String color = properties.getProperty("color");
+        Dog dog = new Dog(name, age, color);
+        System.out.println(dog);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("./testFolder/dog.dat"));
+        objectOutputStream.writeObject(dog);
+        objectOutputStream.close();
+        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("./testFolder/dog.dat"));
+        System.out.println(objectInputStream.readObject());
+    }
+}
+
+class Dog implements Serializable {
+    private String name;
+    private int age;
+    private String color;
+
+    public Dog(String name, int age, String color) {
+        this.name = name;
+        this.age = age;
+        this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "Dog{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", color='" + color + '\'' +
+                '}';
     }
 }

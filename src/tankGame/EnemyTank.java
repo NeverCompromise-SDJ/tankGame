@@ -1,6 +1,7 @@
 package tankGame;
 
 import java.util.Random;
+import java.util.Vector;
 
 /**
  * @author SongDongJie
@@ -8,10 +9,27 @@ import java.util.Random;
  * 敌人坦克类
  */
 public class EnemyTank extends Tank implements Runnable {
+    //地图上存在的所有敌方坦克
+    private Vector<EnemyTank> enemyTanks;
+
     public EnemyTank(int x, int y) {
         super(x, y);
         //初始化EnemyTank对象是敌方坦克
         setEnemy(true);
+    }
+
+    /**
+     * 将地图上存在的所有敌方坦克作为敌方坦克对象的一个属性。以该坦克作为参照，根据参照坦克的不同方向来分成八种情况。
+     * 如果参照坦克与其他坦克的边界相碰，就停止参照坦克向此方向移动。
+     *
+     * @param enemyTanks 地图上存在的所有敌方坦克
+     */
+    public void setEnemyTanks(Vector<EnemyTank> enemyTanks) {
+        this.enemyTanks = enemyTanks;
+    }
+
+    public boolean isTouch() {
+
     }
 
     /**
