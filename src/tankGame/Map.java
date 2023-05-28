@@ -24,19 +24,13 @@ import java.util.Vector;
 paint方法检查bombList集合中是否有元素，有的话根据bomb对象的生命周期，来进行爆炸效果绘制，爆炸结束后将bomb移出集合以提高遍历效率，并结束bomb线程。
 敌方坦克移动机制：当坦克对象创建时，同时开启坦克线程，使得坦克可以随机移动。敌方坦克被击中时，坦克状态为死亡，坦克线程结束。坦克
 也被移除坦克集合。
-防止敌方坦克重叠思路：以一个坦克作为参照，根据参照坦克的不同方向来分成八种情况。如果参照坦克与其他坦克的边界相碰，就停止参照坦克向此方向移动。
-情况：
-当参照坦克为北朝向时,其他坦克为分别为南北、东西朝向时：参照坦克的左上角和右上角不得与其他坦克重合。
-当参照坦克为南朝向时,其他坦克为分别为南北、东西朝向时：参照坦克的左下角和右下角不得与其他坦克重合。
-当参照坦克为东朝向时,其他坦克为分别为南北、东西朝向时：参照坦克的右上角和右下角不得与其他坦克重合。
-当参照坦克为北朝向时,其他坦克为分别为南北、东西朝向时：参照坦克的左上角和左下角不得与其他坦克重合。
 */
 class Map extends JPanel implements KeyListener, Runnable {
     //友军坦克
     private Hero hero;
     //敌军坦克
     final private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
-    private int enemyTankNumber = 3;
+    private int enemyTankNumber = 10;
     //Bomb对象集合
     final private Vector<Bomb> bombList = new Vector<>();
 
@@ -52,13 +46,16 @@ class Map extends JPanel implements KeyListener, Runnable {
         for (int i = 0; i < enemyTankNumber; i++) {
             //初始化敌方坦克位置
             EnemyTank enemyTank = new EnemyTank((i + 1) * 100, 100);
-            //启动敌方坦克线程，使得坦克可以随机移动
-            new Thread(enemyTank).start();
             //使得敌方坦克开始时，炮筒向下
             enemyTank.setDirection(2);
             //修改敌方坦克速度
             enemyTank.setSpeed(3);
+            //添加敌方坦克到敌方坦克集合中
             enemyTankList.add(enemyTank);
+            //设置敌方坦克集合
+            enemyTank.setEnemyTanks(enemyTankList);
+            //启动敌方坦克线程，使得坦克可以随机移动
+            new Thread(enemyTank).start();
         }
     }
 
