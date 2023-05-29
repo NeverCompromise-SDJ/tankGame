@@ -7,8 +7,8 @@ import java.io.File;
 class Music extends Thread{
     private String filename;
 
-    public Music(String wavefile){
-        filename = wavefile;
+    public Music(String musicPath){
+        filename = musicPath;
     }
 
     public void run(){
