@@ -11,8 +11,8 @@ import java.awt.event.WindowEvent;
  * 坦克地图顶级容器，规定了游戏的界面大小
  */
 public class MapFrame extends JFrame {
-    final static int width = Map.width + 300;
-    final static int height = Map.height + 100;
+    private final static int widthOfMapFrame = Map.getWidthOfMap() + 300;
+    private final static int heightOfMapFrame = Map.getHeightOfMap() + 100;
     Map map = null;
 
     public MapFrame() {
@@ -21,7 +21,7 @@ public class MapFrame extends JFrame {
         //启动map线程
         new Thread(map).start();
         this.setBackground(Color.BLACK);
-        this.setSize(width, height);
+        this.setSize(widthOfMapFrame, heightOfMapFrame);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.add(map);
@@ -33,5 +33,13 @@ public class MapFrame extends JFrame {
                 Recorder.storeMsg();
             }
         });
+    }
+
+    public static int getWidthOfMapFrame() {
+        return MapFrame.widthOfMapFrame;
+    }
+
+    public static int getHeightOfMapFrame() {
+        return MapFrame.heightOfMapFrame;
     }
 }
