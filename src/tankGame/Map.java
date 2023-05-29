@@ -29,7 +29,7 @@ class Map extends JPanel implements KeyListener, Runnable {
     private Hero hero = null;
     //敌军坦克
     private Vector<EnemyTank> enemyTankList = null;//敌人的坦克较多，因此放入vector集合中（线程安全）
-    private final static int enemyTankNumber = 5;
+    private final static int enemyTankNumber = 2;
     //Bomb对象集合
     final private Vector<Bomb> bombList = new Vector<>();
     //地图长宽
@@ -415,7 +415,13 @@ class Map extends JPanel implements KeyListener, Runnable {
             //需要不断绘制地图，来更新战场情况
             this.repaint();
             //如果友方坦克被消灭，或者敌方坦克全部被消灭，则游戏结束，并清空游戏数据
-            if (!hero.isLive() || enemyTankList.size() == 0) {
+            if (!hero.isLive()) {
+                System.out.println("你输了");
+                Recorder.deleteMsg();
+                break;
+            }
+            if (enemyTankList.size() == 0) {
+                System.out.println("你赢了");
                 Recorder.deleteMsg();
                 break;
             }
