@@ -1,7 +1,5 @@
 package tankGame;
 
-import java.awt.*;
-import java.util.List;
 
 /**
  * 该类对象在坦克被击中时创建。然后播放爆炸动画。

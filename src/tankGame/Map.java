@@ -1,7 +1,6 @@
 package tankGame;
 
 import javax.swing.*;
-import javax.xml.transform.Source;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -37,7 +36,7 @@ class Map extends JPanel implements KeyListener, Runnable {
     private final static int widthOfMap = 1100;
     private final static int heightOfMap = 800;
 
-    //初始化背景颜色、坦克方位、坦克速度
+    //初始化地图、坦克、子弹等信息
     Map() {
         System.out.println("是否要开始新游戏：0为开始新游戏，1为继续上次游戏");
         int startNewGame = new Scanner(System.in).nextInt();
@@ -68,7 +67,7 @@ class Map extends JPanel implements KeyListener, Runnable {
                     enemyTank.setEnemyTanks(enemyTankList);
                     //启动敌方坦克线程，使得坦克可以随机移动
                     new Thread(enemyTank).start();
-                    //将友方坦克和敌方坦克加到Recorder中
+                    //将游戏信息载入到Recorder中
                     Recorder.setHero(hero);
                     Recorder.setEnemyTanks(enemyTankList);
                     Recorder.setDestroyEnemyNum(0);
@@ -77,11 +76,18 @@ class Map extends JPanel implements KeyListener, Runnable {
             } else if (startNewGame == 1) {
                 //载入友方坦克
                 hero = Recorder.getHero();
+                //启动友方的子弹线程，使子弹可以移动
+                for (Bullet bullet : hero.getBulletList()) {
+                    new Thread(bullet).start();
+                }
                 //载入敌方坦克
                 enemyTankList = Recorder.getEnemyTanks();
-                //启动敌方坦克线程，使得坦克可以随机移动
+                //启动敌方坦克及其子弹线程，使得坦克和子弹可以移动
                 for (EnemyTank enemyTank : enemyTankList) {
                     new Thread(enemyTank).start();
+                    for (Bullet bullet : enemyTank.getBulletList()) {
+                        new Thread(bullet).start();
+                    }
                 }
                 loop = false;
             } else {
