@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Vector;
 
 /**
@@ -25,38 +26,89 @@ paint方法检查bombList集合中是否有元素，有的话根据bomb对象的
 */
 class Map extends JPanel implements KeyListener, Runnable {
     //友军坦克
-    private Hero hero;
+    private Hero hero = null;
     //敌军坦克
-    final private Vector<EnemyTank> enemyTankList = new Vector<>();//敌人的坦克较多，因此放入vector集合中（线程安全）
-    private int enemyTankNumber = 5;
+    private Vector<EnemyTank> enemyTankList = null;//敌人的坦克较多，因此放入vector集合中（线程安全）
+    private final static int enemyTankNumber = 2;
     //Bomb对象集合
     final private Vector<Bomb> bombList = new Vector<>();
-    final static int width = 1100;
-    final static int height = 800;
+    //地图长宽
+    private final static int widthOfMap = 1100;
+    private final static int heightOfMap = 800;
 
-    //初始化背景颜色、坦克方位、坦克速度
+    //初始化地图、坦克、子弹等信息
     Map() {
-        //设置游戏的区域
-        this.setSize(width, height);
-        //添加友方坦克
-        hero = new Hero(300, 500);
-        //修改友方坦克速度
-        hero.setSpeed(10);
-        //添加敌方坦克
-        for (int i = 0; i < enemyTankNumber; i++) {
-            //初始化敌方坦克位置
-            EnemyTank enemyTank = new EnemyTank((i + 1) * 100, 100);
-            //使得敌方坦克开始时，炮筒向下
-            enemyTank.setDirection(2);
-            //修改敌方坦克速度
-            enemyTank.setSpeed(3);
-            //添加敌方坦克到敌方坦克集合中
-            enemyTankList.add(enemyTank);
-            //设置敌方坦克集合
-            enemyTank.setEnemyTanks(enemyTankList);
-            //启动敌方坦克线程，使得坦克可以随机移动
-            new Thread(enemyTank).start();
+        System.out.println("是否要开始新游戏：0为开始新游戏，1为继续上次游戏");
+        int startNewGame = new Scanner(System.in).nextInt();
+        boolean loop = true;
+        boolean isLoadSuccess = Recorder.loadMsg();
+        while (loop) {
+            if (!isLoadSuccess) {
+                System.out.println("游戏数据为空，开始新游戏");
+            }
+            //如果输入了0或者游戏数据为空，则开始新游戏
+            if (startNewGame == 0 || !isLoadSuccess) {
+                //添加友方坦克
+                hero = new Hero(300, 500);
+                //修改友方坦克速度
+                hero.setSpeed(10);
+                //添加敌方坦克
+                enemyTankList = new Vector<>();
+                for (int i = 0; i < enemyTankNumber; i++) {
+                    //初始化敌方坦克位置
+                    EnemyTank enemyTank = new EnemyTank((i + 1) * 100, 100);
+                    //使得敌方坦克开始时，炮筒向下
+                    enemyTank.setDirection(2);
+                    //修改敌方坦克速度
+                    enemyTank.setSpeed(3);
+                    //添加敌方坦克到敌方坦克集合中
+                    enemyTankList.add(enemyTank);
+                    //设置敌方坦克集合，目的是防止敌方坦克重合
+                    enemyTank.setEnemyTanks(enemyTankList);
+                    //启动敌方坦克线程，使得坦克可以随机移动
+                    new Thread(enemyTank).start();
+                    //将游戏信息载入到Recorder中
+                    Recorder.setHero(hero);
+                    Recorder.setEnemyTanks(enemyTankList);
+                    Recorder.setDestroyEnemyNum(0);
+                    loop = false;
+                }
+            } else if (startNewGame == 1) {
+                //载入友方坦克
+                hero = Recorder.getHero();
+                //启动友方的子弹线程，使子弹可以移动
+                for (Bullet bullet : hero.getBulletList()) {
+                    new Thread(bullet).start();
+                }
+                //载入敌方坦克
+                enemyTankList = Recorder.getEnemyTanks();
+                //启动敌方坦克及其子弹线程，使得坦克和子弹可以移动
+                for (EnemyTank enemyTank : enemyTankList) {
+                    new Thread(enemyTank).start();
+                    for (Bullet bullet : enemyTank.getBulletList()) {
+                        new Thread(bullet).start();
+                    }
+                }
+                loop = false;
+            } else {
+                System.out.println("输入错误，请重新输入");
+                startNewGame = new Scanner(System.in).nextInt();
+            }
         }
+        //设置游戏的区域
+        this.setSize(widthOfMap, heightOfMap);
+    }
+
+    public static int getWidthOfMap() {
+        return widthOfMap;
+    }
+
+    public static int getHeightOfMap() {
+        return heightOfMap;
+    }
+
+    public static int getEnemyTankNumber() {
+        return enemyTankNumber;
     }
 
     //绘制主方法
@@ -64,7 +116,7 @@ class Map extends JPanel implements KeyListener, Runnable {
     public void paint(Graphics g) {
         super.paint(g);
         //绘制地图背景颜色
-        g.fillRect(0, 0, width, height);
+        g.fillRect(0, 0, widthOfMap, heightOfMap);
         //绘制玩家信息
         showInfo(g);
         //绘制存活的友军坦克
@@ -98,7 +150,7 @@ class Map extends JPanel implements KeyListener, Runnable {
 
     public void showInfo(Graphics g) {
         g.setColor(Color.BLACK);
-        g.setFont(new Font("宋体", Font.BOLD, 21));
+        g.setFont(new Font(Font.SERIF, Font.BOLD, 21));
         g.drawString("您累计击毁敌方坦克数", 1130, 30);
         drawTank(1130, 70, 0, true, g);
         g.setColor(Color.BLACK);//因为画坦克的时候改变了画笔的颜色，所以绘制黑色字符串的时候，需要再把颜色改回来
@@ -362,13 +414,19 @@ class Map extends JPanel implements KeyListener, Runnable {
             hitTank(hero, enemyTankList);
             //需要不断绘制地图，来更新战场情况
             this.repaint();
-            //如果友方坦克被消灭，或者敌方坦克全部被消灭，则游戏结束
-            if (!hero.isLive() || enemyTankList.size() == 0) {
+            //如果友方坦克被消灭，或者敌方坦克全部被消灭，则游戏结束，并清空游戏数据
+            if (!hero.isLive()) {
+                System.out.println("你输了");
+                Recorder.deleteMsg();
+                break;
+            }
+            if (enemyTankList.size() == 0) {
+                System.out.println("你赢了");
+                Recorder.deleteMsg();
                 break;
             }
         }
-        //游戏结束后，保存此局游戏的信息
-        Recorder.storeMsg();
+        //Map进程结束时，退出程序
         System.exit(0);
     }
 }

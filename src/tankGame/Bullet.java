@@ -1,12 +1,14 @@
 package tankGame;
 
+import java.io.Serializable;
+
 /**
  * @author SongDongJie
  * @create 2023/5/9 - 0:55
  * 子弹类
  */
 //为了不断改变子弹的坐标，以及子弹的生命周期，因此需要将子弹做成线程
-public class Bullet implements Runnable {
+public class Bullet implements Runnable, Serializable {
     private int x;//子弹的x坐标
     private int y;//子弹的y坐标
     private int direction;//子弹的朝向，0123分别对应上右下左
@@ -67,7 +69,7 @@ public class Bullet implements Runnable {
             //每50毫秒，子弹移动一次
             bulletMove();
             //如果子弹到达边界，则消失
-            if (!(x >= 0 && x <= Map.width && y >= 0 && y <= Map.height)) {
+            if (!(x >= 0 && x <= Map.getWidthOfMap() && y >= 0 && y <= Map.getHeightOfMap())) {
                 //将子弹状态记为不存在，以达到从子弹集合中移除的目的
                 isLive = false;
                 //退出子弹线程

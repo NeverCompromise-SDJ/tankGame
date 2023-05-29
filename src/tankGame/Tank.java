@@ -1,5 +1,6 @@
 package tankGame;
 
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Vector;
  * @create 2023/4/16 - 22:55
  * 坦克类
  */
-class Tank {
+class Tank implements Serializable {
     private int x;//坦克的x坐标
     private int y;//坦克的y坐标
     private int direction;//坦克的朝向，0123分别对应上右下左
@@ -75,8 +76,8 @@ class Tank {
     }
 
     /**
-     *  首先保存移动前的坦克位置坐标，然后根据坦克方向和速度计算移动后的位置坐标，
-     *  如果移动后的位置超出了地图边界则直接返回，否则更新坦克的位置坐标。
+     * 首先保存移动前的坦克位置坐标，然后根据坦克方向和速度计算移动后的位置坐标，
+     * 如果移动后的位置超出了地图边界则直接返回，否则更新坦克的位置坐标。
      */
 
     public void move() {
@@ -86,25 +87,25 @@ class Tank {
         switch (direction) {
             case 0:
                 moveBeforeY -= speed;
-                if (moveBeforeX + 50 > Map.width || moveBeforeX < 0 || moveBeforeY + 70 > Map.height || moveBeforeY < 0) {
+                if (moveBeforeX + 50 > Map.getWidthOfMap() || moveBeforeX < 0 || moveBeforeY + 70 > Map.getHeightOfMap() || moveBeforeY < 0) {
                     return;
                 }
                 break;
             case 1:
                 moveBeforeX += speed;
-                if (moveBeforeX + 70 > Map.width || moveBeforeX < 0 || moveBeforeY + 50 > Map.height || moveBeforeY < 0) {
+                if (moveBeforeX + 70 > Map.getWidthOfMap() || moveBeforeX < 0 || moveBeforeY + 50 > Map.getHeightOfMap() || moveBeforeY < 0) {
                     return;
                 }
                 break;
             case 2:
                 moveBeforeY += speed;
-                if (moveBeforeX + 50 > Map.width || moveBeforeX < 0 || moveBeforeY + 70 > Map.height || moveBeforeY < 0) {
+                if (moveBeforeX + 50 > Map.getWidthOfMap() || moveBeforeX < 0 || moveBeforeY + 70 > Map.getHeightOfMap() || moveBeforeY < 0) {
                     return;
                 }
                 break;
             case 3:
                 moveBeforeX -= speed;
-                if (moveBeforeX + 70 > Map.width || moveBeforeX < 0 || moveBeforeY + 50 > Map.height || moveBeforeY < 0) {
+                if (moveBeforeX + 70 > Map.getWidthOfMap() || moveBeforeX < 0 || moveBeforeY + 50 > Map.getHeightOfMap() || moveBeforeY < 0) {
                     return;
                 }
                 break;
