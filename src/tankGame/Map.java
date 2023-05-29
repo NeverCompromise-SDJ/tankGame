@@ -97,6 +97,8 @@ class Map extends JPanel implements KeyListener, Runnable {
         }
         //设置游戏的区域
         this.setSize(widthOfMap, heightOfMap);
+        //添加开局音乐
+        new Thread(new Music("./resource/gameMusic/gameMusic.wav")).start();
     }
 
     public static int getWidthOfMap() {

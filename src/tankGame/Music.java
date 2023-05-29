@@ -2,34 +2,41 @@ package tankGame;
 
 import javax.sound.sampled.*;
 import java.io.File;
+import java.io.IOException;
 
-//声音类
-class Music extends Thread {
-    private String filename;
+/**
+ * 声音类，用于播放开局音乐
+ */
 
-    public Music(String musicPath) {
-        filename = musicPath;
+class Music implements Runnable {
+    //音乐的路径
+    private String filePath;
+
+    public Music(String filePath) {
+        this.filePath = filePath;
     }
 
     public void run() {
-        File SoundFile = new File(filename);
+        File musicFile = new File(filePath);
 
-        AudioInputStream audioInputStream = null;
+        AudioInputStream audioInputStream;
 
         try {
-            audioInputStream = AudioSystem.getAudioInputStream(SoundFile);
-        } catch (Exception e) {
+            //根据file对象创建一个AudioInputStream流
+            audioInputStream = AudioSystem.getAudioInputStream(musicFile);
+        } catch (UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
             return;
         }
 
-        AudioFormat Format = audioInputStream.getFormat();
+        //AudioInputStream流返回一个AudioFormat对象
+        AudioFormat audioFormat = audioInputStream.getFormat();
         SourceDataLine sdl = null;
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, Format);
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
 
         try {
             sdl = (SourceDataLine) AudioSystem.getLine(info);
-            sdl.open(Format);
+            sdl.open(audioFormat);
         } catch (Exception e) {
             e.printStackTrace();
             return;
