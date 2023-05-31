@@ -1,41 +1,26 @@
-import java.io.*;
-import java.util.Properties;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-class Test {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-        Properties properties = new Properties();
-        properties.load(new FileReader("./testFolder/dog.properties"));
-        String name = properties.getProperty("name");
-        int age = new Integer(properties.getProperty("age"));
-//        int age = Integer.getInteger(properties.getProperty("age"));
-        String color = properties.getProperty("color");
-        Dog dog = new Dog(name, age, color);
-        System.out.println(dog);
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("./testFolder/dog.dat"));
-        objectOutputStream.writeObject(dog);
-        objectOutputStream.close();
-        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("./testFolder/dog.dat"));
-        System.out.println(objectInputStream.readObject());
-    }
-}
-
-class Dog implements Serializable {
-    private String name;
-    private int age;
-    private String color;
-
-    public Dog(String name, int age, String color) {
-        this.name = name;
-        this.age = age;
-        this.color = color;
-    }
-
-    @Override
-    public String toString() {
-        return "Dog{" +
-                "name='" + name + '\'' +
-                ", age=" + age +
-                ", color='" + color + '\'' +
-                '}';
+class Server {
+    public static void main(String[] args) throws IOException {
+        //根据端口号创建一个ServerSocket对象
+        ServerSocket serverSocket = new ServerSocket(10000);
+        //监听客户端的连接请求，连接成功后返回Socket对象。
+        Socket socket = serverSocket.accept();
+        System.out.println("与客户端成功建立连接");
+        //根据Socket对象创建对应的InputStream 输入流，通过输入流接收客户端发送的信息。
+        InputStream inputStream = socket.getInputStream();
+        //从输入流中读取客户端发送的信息
+        int readLen;
+        byte[] content = new byte[1024];
+        while ((readLen = inputStream.read(content)) != -1) {
+            System.out.println(new String(content, 0, readLen));
+        }
+        //关闭输入流及socket、serverSocket，释放资源
+        serverSocket.close();
+        socket.close();
+        inputStream.close();
     }
 }
