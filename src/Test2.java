@@ -1,19 +1,42 @@
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
 
 class Client {
     public static void main(String[] args) throws IOException {
-        //根据InetAddress对象和端口号创建一个Socket对象，并与服务端建立连接。
-        Socket socket = new Socket(InetAddress.getLocalHost(), 10000);
-        System.out.println("与服务端成功建立连接");
-        //根据Socket对象创建对应的OutputStream 输出流，通过输出流向服务端发送数据。
+        //向服务端发送请求
+        Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
         OutputStream outputStream = socket.getOutputStream();
-        //向服务器发送数据
-        outputStream.write("hello".getBytes());
-        //关闭socket和相关的流，释放资源
-        socket.close();
+        String needFileName = new Scanner(System.in).next();
+        outputStream.write(needFileName.getBytes());
+        socket.shutdownOutput();
+
+        //读取服务端发送的文件
+        InputStream inputStream = socket.getInputStream();
+        int readLen;
+        byte[] readContentOfBytes = new byte[1024];
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        while ((readLen = inputStream.read(readContentOfBytes)) != -1) {
+            byteArrayOutputStream.write(readContentOfBytes, 0, readLen);
+        }
+        byte[] file = byteArrayOutputStream.toByteArray();
+
+
+        //将读取的文件下载到本地
+        String filePath;
+        if (needFileName.equals("pic")) {
+            filePath = "./newPic.webp";
+        } else {
+            filePath = "./newTest.txt";
+        }
+        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        fileOutputStream.write(file);
+
+        //释放资源
         outputStream.close();
+        inputStream.close();
+        byteArrayOutputStream.close();
+        fileOutputStream.close();
+        socket.close();
     }
 }
